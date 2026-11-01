@@ -751,8 +751,43 @@ h2.tituloPagina span { border-bottom:0 !important; text-indent:0 !important; pad
   #frm-style-list input.textfield,
   #frm-style-list select.select { max-width: 100%; }
 }
+.aocp-edital-card .aec-head{ background:linear-gradient(90deg,#f3f8ff,#ffffff)!important; border-bottom:1px solid #eef5fd!important; }
+/* --- Variant com brasão à esquerda (SUPERA /vunesp/pages.css que usa :not(#vn_a):not(#vn_b)) --- */
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo{
+  display:flex!important; flex-direction:row!important; align-items:center!important;
+  gap:16px!important; text-align:left!important; padding:14px 20px!important;
+  background:linear-gradient(90deg,#f3f8ff,#ffffff)!important;
+}
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-brasao{
+  width:64px!important; height:64px!important; object-fit:contain!important;
+  flex:0 0 64px!important; margin:0!important; display:block!important;
+}
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text{
+  flex:1 1 auto!important; min-width:0!important; text-align:left!important; display:block!important;
+}
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text h3,
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text h3.vn-keep{
+  margin:0!important; font-size:24px!important; font-weight:700!important;
+  line-height:1.2!important; text-align:left!important; color:#123a5e!important;
+  font-family:inherit!important; text-transform:none!important; letter-spacing:0!important;
+}
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text .vn-sub{
+  margin:4px 0 0!important; font-size:15px!important; font-weight:400!important;
+  line-height:1.3!important; text-align:left!important; color:#5b6b7a!important;
+  font-family:inherit!important; text-transform:none!important; display:block!important;
+}
+html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text .vn-sub::after{
+  display:none!important; content:none!important; width:0!important; height:0!important;
+}
+@media(max-width:640px){
+  html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo{ gap:10px!important; padding:12px 14px!important; }
+  html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-brasao{ width:48px!important; height:48px!important; flex:0 0 48px!important; }
+  html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text h3,
+  html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text h3.vn-keep{ font-size:18px!important; }
+  html body:not(#vn_a):not(#vn_b) .aocp-edital-card .aec-head.aec-head-logo .aec-head-text .vn-sub{ font-size:13px!important; }
+}
 </style>
-<div class="blocoPadrao"><div class="dados"><div class="aocp-edital-card" data-testid="edital-card"><div class="aec-head"><h3 class="vn-keep" data-c="titulo">PMPE 2026</h3><p class="vn-sub" data-c="orgao">Polícia Militar de Pernambuco</p></div></div>
+<div class="blocoPadrao"><div class="dados"><div class="aocp-edital-card" data-testid="edital-card"><div class="aec-head aec-head-logo"><img class="aec-brasao" data-c-src="logo" src="/idcap/img/pmpe-logo.jpg" alt="Brasão do concurso" loading="lazy" /><div class="aec-head-text"><h3 class="vn-keep" data-c="titulo">PMPE 2026</h3><p class="vn-sub" data-c="orgao">Polícia Militar de Pernambuco</p></div></div></div>
 <h1>Pagamento via PIX</h1>
 
 <div style="padding:14px 25px 30px 25px;font-family:Arial,Helvetica,sans-serif;color:#333;">
