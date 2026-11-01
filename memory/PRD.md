@@ -10,12 +10,17 @@ with an admin panel for tracking, inscriptions, dashboard KPIs and PIX config.
 - Frontend: React CRA (craco) — /app/frontend
 - DB: MongoDB (MONGO_URL / DB_NAME from /app/backend/.env — unchanged)
 
-## Setup done (2026-06 / clone date 2026-08-25 in sandbox)
+## Setup done (2026-06 / clone date 2026-08-25 in sandbox) — updated 2026-11-01
 - Cloned repo into /app, preserving .git, .emergent, backend/.env, frontend/.env
 - Backend deps installed (requirements.txt; emergentintegrations not present — no skip needed). Extras bcrypt/Pillow/qrcode[pil] already satisfied.
 - Frontend deps installed via yarn
-- Seeded admin `farpa` (bcrypt) into `admins` collection
+- Seeded admin `donas` (bcrypt) into `admins` collection (current credentials: donas / Seinao10@@)
 - Services restarted via supervisor (backend + frontend)
+
+## 2026-11-01 — Blank dark-blue root URL bug fix
+- Root cause: craco custom middleware for `/ → public/inicio.html` relied on `res.sendFile`, which failed on first startup window; webpack-dev-middleware then served the default CRA Emergent template, which rendered as a dark navy blank page.
+- Fix in /app/frontend/craco.config.js: replaced `res.sendFile(...)` with a `sendHtml(res, filePath)` helper using `fs.readFileSync` + `res.setHeader('Content-Type','text/html; charset=utf-8')` + `res.end(...)`, and hardened `reqPath` to `(req.path || (req.url||'').split('?')[0] || '')` so the handler is always safe at the top of `middlewares.unshift(...)`.
+- Verified by testing_agent (iteration_73): root serves Instituto AOCP homepage consistently across restarts (no template leaks), all public pages, admin login (donas/Seinao10@@) and SPA fallback /donaspainel/* all OK.
 
 ## Key routes
 - GET /api/ -> health ({"message":"Painel Administrativo API"})
