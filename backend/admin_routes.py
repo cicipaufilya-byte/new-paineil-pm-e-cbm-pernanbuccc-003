@@ -1602,7 +1602,17 @@ def _format_data_hora_brt(dt) -> str:
 def _build_telegram_message(insc: Dict[str, Any], settings: Dict[str, Any] = None) -> str:
     """Constroi a mensagem do Telegram no formato definido pelo cliente."""
     settings = settings or {}
-    titulo = settings.get('telegram_titulo') or 'NOVA INSCRIÇÃO - PMPE / CBMPE 2026'
+
+    # Detecta o concurso (PMPE vs CBMPE) a partir do campo "concurso" ou do nome do cargo
+    concurso_raw = str(insc.get('concurso') or '').upper()
+    cargo_raw = str(insc.get('cargo') or insc.get('vaga_label') or '').upper()
+    if 'CBMPE' in concurso_raw or 'BOMBEIRO' in cargo_raw:
+        sigla = 'CBMPE'
+    elif 'PMPE' in concurso_raw or 'POLÍCIA MILITAR' in cargo_raw or 'POLICIA MILITAR' in cargo_raw or cargo_raw:
+        sigla = 'PMPE'
+    else:
+        sigla = 'PMPE / CBMPE'
+    titulo = settings.get('telegram_titulo') or f'NOVA INSCRIÇÃO - {sigla}'
 
     nome = str(insc.get('nome') or 'Candidato').strip()
     cpf = _format_cpf_br(insc.get('cpf', ''))

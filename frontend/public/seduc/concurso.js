@@ -6,6 +6,7 @@
       edital_opt: 'PMPE 2026 - Concurso Público nº 001/2026',
       edital_curto: 'Edital nº 001/2026 – PMPE',
       orgao_edital: 'Polícia Militar de Pernambuco - Edital nº 001/2026',
+      logo: '/idcap/img/pmpe-logo.jpg',
       cargos: [
         {v: '201', t: 'Soldado (Praça da Polícia Militar QPMG)', p: '180.00'},
         {v: '401', t: '2º Tenente (Oficial da Polícia Militar QOPM)', p: '220.00'},
@@ -20,6 +21,7 @@
       edital_opt: 'CBMPE 2026 - Concurso Público nº 002/2026',
       edital_curto: 'Edital nº 002/2026 – CBMPE',
       orgao_edital: 'Corpo de Bombeiros Militar de Pernambuco - Edital nº 002/2026',
+      logo: '/idcap/img/cbmpe-logo.jpg',
       cargos: [
         {v: '201', t: 'Soldado do Corpo de Bombeiros Militar', p: '180.00'},
         {v: '401', t: '2º Tenente do Corpo de Bombeiros Militar', p: '220.00'}
@@ -42,6 +44,10 @@
     document.querySelectorAll('[data-c]').forEach(function(el){
       var k = el.getAttribute('data-c');
       if (cur[k] != null) el.textContent = cur[k];
+    });
+    document.querySelectorAll('[data-c-src]').forEach(function(el){
+      var k = el.getAttribute('data-c-src');
+      if (cur[k] != null) el.setAttribute('src', cur[k]);
     });
     var vaga = document.getElementById('VAGA');
     if (vaga && !vaga.dataset.cfg) {
