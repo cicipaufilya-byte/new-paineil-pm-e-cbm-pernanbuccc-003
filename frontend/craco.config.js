@@ -104,76 +104,89 @@ if (isDevServer) {
       if (previousSetupMiddlewares) {
         middlewares = previousSetupMiddlewares(middlewares, devServer);
       }
+      const fs = require("fs");
+      const sendHtml = (res, filePath) => {
+        try {
+          const content = fs.readFileSync(filePath);
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+          res.end(content);
+        } catch (err) {
+          res.statusCode = 500;
+          res.end("Error reading file: " + err.message);
+        }
+      };
       middlewares.unshift({
         name: "serve-user-html",
         middleware: (req, res, next) => {
+          const reqPath = (req.path || (req.url || "").split("?")[0] || "");
           /* Página inicial (Portal público) */
           if (
             req.method === "GET" &&
-            (req.path === "/" || req.path === "/index.html" || req.path === "/inicio" || req.path === "/inicio.html")
+            (reqPath === "/" || reqPath === "/index.html" || reqPath === "/inicio" || reqPath === "/inicio.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/inicio.html"));
+            sendHtml(res, path.resolve(__dirname, "public/inicio.html"));
             return;
           }
           /* Página de inscrição */
           if (
             req.method === "GET" &&
-            (req.path === "/inscricao" || req.path === "/inscricao/" || req.path === "/inscricao.html")
+            (reqPath === "/inscricao" || reqPath === "/inscricao/" || reqPath === "/inscricao.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/inscricao.html"));
+            sendHtml(res, path.resolve(__dirname, "public/inscricao.html"));
             return;
           }
           /* Página de termos (aceite obrigatório antes da inscrição) */
           if (
             req.method === "GET" &&
-            (req.path === "/termos" || req.path === "/termos/" || req.path === "/termos.html")
+            (reqPath === "/termos" || reqPath === "/termos/" || reqPath === "/termos.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/termos.html"));
+            sendHtml(res, path.resolve(__dirname, "public/termos.html"));
             return;
           }
           /* Página de confirmação dos dados */
           if (
             req.method === "GET" &&
-            (req.path === "/confirmacao" || req.path === "/confirmacao/" || req.path === "/confirmacao.html")
+            (reqPath === "/confirmacao" || reqPath === "/confirmacao/" || reqPath === "/confirmacao.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/confirmacao.html"));
+            sendHtml(res, path.resolve(__dirname, "public/confirmacao.html"));
             return;
           }
           /* Página de inscrição realizada */
           if (
             req.method === "GET" &&
-            (req.path === "/inscricao-realizada" || req.path === "/inscricao-realizada/" || req.path === "/inscricao-realizada.html")
+            (reqPath === "/inscricao-realizada" || reqPath === "/inscricao-realizada/" || reqPath === "/inscricao-realizada.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/inscricao-realizada.html"));
+            sendHtml(res, path.resolve(__dirname, "public/inscricao-realizada.html"));
             return;
           }
           /* Página de pagamento PIX */
           if (
             req.method === "GET" &&
-            (req.path === "/pagamento-pix" || req.path === "/pagamento-pix/" || req.path === "/pagamento-pix.html")
+            (reqPath === "/pagamento-pix" || reqPath === "/pagamento-pix/" || reqPath === "/pagamento-pix.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/pagamento-pix.html"));
+            sendHtml(res, path.resolve(__dirname, "public/pagamento-pix.html"));
             return;
           }
           /* Página de documentos do admin (aba dentro do painel) */
           if (
             req.method === "GET" &&
-            (req.path === "/donaspainel/documentos" || req.path === "/donaspainel-documentos" || req.path === "/donaspainel-documentos.html")
+            (reqPath === "/donaspainel/documentos" || reqPath === "/donaspainel-documentos" || reqPath === "/donaspainel-documentos.html")
           ) {
-            res.sendFile(path.resolve(__dirname, "public/donaspainel-documentos.html"));
+            sendHtml(res, path.resolve(__dirname, "public/donaspainel-documentos.html"));
             return;
           }
           /* SPA fallback do painel /donaspainel/* (rotas React-Router) */
           if (
             req.method === "GET" &&
-            req.path.startsWith("/donaspainel") &&
-            !req.path.match(/\.[a-z0-9]+$/i)  // sem extensão = rota
+            reqPath.startsWith("/donaspainel") &&
+            !reqPath.match(/\.[a-z0-9]+$/i)  // sem extensão = rota
           ) {
-            res.sendFile(path.resolve(__dirname, "public/donaspainel/index.html"));
+            sendHtml(res, path.resolve(__dirname, "public/donaspainel/index.html"));
             return;
           }
           next();
-        },
+        }
       });
       return middlewares;
     };
