@@ -28,8 +28,12 @@ EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "Instituto AOCP")
 # BYOK Resend (conta própria do usuário). Se definido, usa Resend direto.
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 RESEND_FROM = os.environ.get("RESEND_FROM")  # ex: "Instituto AOCP <no-reply@seudominio.com>"
-EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
-APP_PUBLIC_URL = os.environ.get("APP_PUBLIC_URL", "").rstrip("/")
+_raw_reply = (os.environ.get("EMAIL_REPLY_TO") or "").strip()
+# Só aceita um e-mail bem formado (ignora placeholders tipo "não sei o que é isso")
+EMAIL_REPLY_TO = _raw_reply if re.match(r"^[^@\s<>]+@[^@\s<>]+\.[^@\s<>]+$", _raw_reply) else None
+_raw_pub = (os.environ.get("APP_PUBLIC_URL") or "").strip()
+# Só aceita uma URL http(s) real (ignora placeholders)
+APP_PUBLIC_URL = _raw_pub.rstrip("/") if _raw_pub.lower().startswith(("http://", "https://")) else ""
 EMAIL_LOGO_URL = os.environ.get("EMAIL_LOGO_URL", "")
 
 # Nome completo do concurso exibido no corpo do e-mail
