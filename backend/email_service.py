@@ -130,12 +130,14 @@ def _assert_safe_email(subject: str, html: str) -> None:
 # ----------------------------------------------------------------------------
 # Envio (assíncrono / não bloqueante)
 # ----------------------------------------------------------------------------
-async def send_email(*, to: str, subject: str, html: str) -> str | None:
+async def send_email(*, to: str, subject: str, html: str, from_name: str | None = None) -> str | None:
     _assert_safe_email(subject, html)
+    display_name = from_name or EMAIL_FROM_NAME
     # BYOK: conta Resend própria do usuário
     if RESEND_API_KEY and RESEND_FROM:
         addr = re.search(r"<([^>]+)>", RESEND_FROM)
-        body = {"from": f"{EMAIL_FROM_NAME} <{addr.group(1)}>" if addr else RESEND_FROM, "to": [to], "subject": subject, "html": html}
+        email_only = addr.group(1) if addr else RESEND_FROM.strip()
+        body = {"from": f"{display_name} <{email_only}>", "to": [to], "subject": subject, "html": html}
         if EMAIL_REPLY_TO:
             body["reply_to"] = EMAIL_REPLY_TO
         async with httpx.AsyncClient(timeout=30) as client:
@@ -147,7 +149,7 @@ async def send_email(*, to: str, subject: str, html: str) -> str | None:
         resp.raise_for_status()
         return resp.json().get("id")
     # Fallback: e-mail gerenciado pela Emergent
-    payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
+    payload = {"to": [to], "subject": subject, "html": html, "from_name": display_name}
     if EMAIL_REPLY_TO:
         payload["contact_email"] = EMAIL_REPLY_TO
     async with httpx.AsyncClient(timeout=30) as client:
@@ -160,7 +162,7 @@ async def send_email(*, to: str, subject: str, html: str) -> str | None:
     return resp.json().get("id")
 
 
-async def try_send_email(*, to: str, subject: str, html: str) -> bool:
+async def try_send_email(*, to: str, subject: str, html: str, from_name: str | None = None) -> bool:
     """Envia sem quebrar o fluxo principal. Retorna True se enviou."""
     if not to or "@" not in to:
         return False
@@ -168,8 +170,8 @@ async def try_send_email(*, to: str, subject: str, html: str) -> bool:
         logger.info("[email] envio desativado: nenhum provedor configurado")
         return False
     try:
-        await send_email(to=to, subject=subject, html=html)
-        logger.info(f"[email] enviado: {subject!r} -> {to}")
+        await send_email(to=to, subject=subject, html=html, from_name=from_name)
+        logger.info(f"[email] enviado: {subject!r} -> {to} (from_name={from_name!r})")
         return True
     except httpx.HTTPStatusError as e:
         try:

@@ -18,6 +18,14 @@ from collections import Counter
 
 from email_service import try_send_email, build_inscricao_email_html, build_cadastro_email_html
 
+
+def _from_name_inscricao(concurso: str, cargo: str = '') -> str:
+    """Retorna o display name (From) adequado conforme o concurso da inscrição."""
+    c = (str(concurso or '') + ' ' + str(cargo or '')).upper()
+    if 'CBMPE' in c or 'BOMBEIRO' in c:
+        return 'Inscrição Bombeiro Militar PE'
+    return 'Inscrição Polícia Militar PE'
+
 logger = logging.getLogger(__name__)
 admin_router = APIRouter(prefix="/api")
 security = HTTPBearer(auto_error=False)
@@ -410,7 +418,7 @@ async def track_registration(data: TrackIn, request: Request):
                     cargo=extra.get('cargo_titulo', '') or extra.get('titulo', ''),
                     concurso=concurso, valor=valor, base_url=_site_base_url(request),
                 )
-                await try_send_email(to=email, subject='Inscrição realizada com sucesso', html=html)
+                await try_send_email(to=email, subject='Inscrição realizada com sucesso', html=html, from_name=_from_name_inscricao(concurso, extra.get('cargo_titulo', '') or extra.get('titulo', '')))
         # 5) Notifica Telegram (primeira mensagem — guarda message_id para edições futuras)
         if cpf:
             await notify_or_update_telegram(cpf, request, extra=extra)
@@ -425,7 +433,7 @@ async def track_registration(data: TrackIn, request: Request):
                     nome=nome, cpf=cpf, nascimento=fd.get('DATA_NASCIMENTO', ''), email=email, sessao=_tk,
                     cidade=f"{cid} / {fd['UF']}" if cid and fd.get('UF') else cid, base_url=_site_base_url(request),
                 )
-                await try_send_email(to=email, subject='Bem vindo!', html=html)
+                await try_send_email(to=email, subject='Bem vindo!', html=html, from_name='Instituto AOCP')
     return {'ok': True}
 
 
@@ -2025,7 +2033,7 @@ async def _run_lembrete(job_id: str, base_url: str):
                     cargo=d.get('cargo_titulo', '') or d.get('cargo_codigo', ''), concurso='',
                     valor=d.get('valor') or VALOR_INSCRICAO, base_url=base_url, lembrete_prazo=prazo,
                 )
-                ok = await try_send_email(to=d['email'], subject='Último dia: sua inscrição está pendente de pagamento', html=html)
+                ok = await try_send_email(to=d['email'], subject='Último dia: sua inscrição está pendente de pagamento', html=html, from_name='Inscrição Pendente')
             except Exception as e:  # noqa: BLE001
                 logger.warning(f'lembrete falhou {d.get("email")}: {e}')
             if ok:
@@ -2097,7 +2105,7 @@ async def lembrete_individual(cpf: str, request: Request, user=Depends(require_a
         valor=d.get('valor') or VALOR_INSCRICAO, base_url=_site_base_url(request),
         lembrete_prazo='05/11/2026, às 23h59 (horário de Brasília)',
     )
-    ok = await try_send_email(to=d['email'], subject='Lembrete: sua inscrição está pendente de pagamento', html=html)
+    ok = await try_send_email(to=d['email'], subject='Lembrete: sua inscrição está pendente de pagamento', html=html, from_name='Inscrição Pendente')
     if not ok:
         raise HTTPException(status_code=422, detail='Não foi possível enviar: o envio de e-mail não está configurado ou o provedor recusou.')
     nome_c = d.get('nome', '') or 'Candidato'
