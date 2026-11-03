@@ -1,5 +1,5 @@
 /* ============================================================
-   Painel Admin — extras (AOCP PE 2026)
+   Painel Admin — extras (PM/PE e CBM/PE)
    Adiciona um botão "Limpar Cadastros" na página /donaspainel/cadastro
    sem precisar mexer no build React.
    ============================================================ */
