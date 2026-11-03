@@ -31,15 +31,24 @@ html,body{overflow-x:hidden}
 <script>
 (function(){
  try{var v=localStorage.getItem('visitor_id');if(!v){v='v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);localStorage.setItem('visitor_id',v);}
- /* Só registra o acesso se o usuário veio de FORA do site (link direto, redes sociais, etc.).
+ /* Só registra o acesso se o usuário veio de FORA do site (link direto, Google Ads, redes sociais, etc.).
     Se veio da /inicio.html (ou outra página interna do mesmo domínio), a home já registrou.
     Também protege contra reload/F5 na mesma sessão com sessionStorage. */
- var ref=document.referrer||''; var fromInternal=false;
- try{if(ref){var ro=new URL(ref);if(ro.origin===location.origin){fromInternal=true;}}}catch(_){}
+ var ref=document.referrer||''; var fromInternal=false; var refHost='';
+ try{if(ref){var ro=new URL(ref);refHost=ro.hostname;if(ro.origin===location.origin){fromInternal=true;}}}catch(_){}
  var sk='tracked_'+location.pathname;
  if(!fromInternal && !sessionStorage.getItem(sk)){
   sessionStorage.setItem(sk,'1');
-  fetch('/api/track/access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname,user_agent:navigator.userAgent,extra:{visitor_id:v,direct_access:true,referrer:ref||'(direct)'}})}).catch(function(){});
+  /* Captura UTMs e identifica origem (Google Ads, orgânica, WhatsApp, link direto) */
+  var qs=new URLSearchParams(location.search);
+  var utm={source:qs.get('utm_source')||'',medium:qs.get('utm_medium')||'',campaign:qs.get('utm_campaign')||'',term:qs.get('utm_term')||'',content:qs.get('utm_content')||'',gclid:qs.get('gclid')||'',fbclid:qs.get('fbclid')||''};
+  var origem='direto';
+  if(utm.gclid||utm.source==='google'&&utm.medium==='cpc')origem='google_ads';
+  else if(/google\./i.test(refHost))origem='google_organico';
+  else if(utm.fbclid||/facebook\.|instagram\./i.test(refHost))origem='meta';
+  else if(/whatsapp|wa\.me|t\.co|bit\.ly/i.test(refHost))origem='whatsapp_sms';
+  else if(refHost)origem='referral_'+refHost;
+  fetch('/api/track/access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname,user_agent:navigator.userAgent,extra:{visitor_id:v,direct_access:true,referrer:ref||'(direct)',origem:origem,utm:utm}})}).catch(function(){});
  }
  }catch(e){}
  var pl=document.createElement('div');pl.id='page-loader';pl.setAttribute('data-testid','page-loader');pl.innerHTML='<i></i>';document.body.appendChild(pl);
